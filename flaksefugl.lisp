@@ -7,15 +7,18 @@
 
 (cl:in-package :flaksefugl)
 
+(defvar *width* 800)
+(defvar *height* 600)
+
 (defvar *gravity* (gk:vec2 0.0 -0.1))
 (defvar *speed* (gk:vec2 0.0 0.0))
-(defvar *pos* (gk:vec2 0.0 480.0))
+(defvar *pos* (gk:vec2 (/ *width* 2) (/ *height* 2)))
 (defvar *flaksespeed* (gk:vec2 0.0 5.0))
 
 (gk:defgame flaksefugl ()
   ()
-  (:viewport-width 800)
-  (:viewport-height 600)
+  (:viewport-width *width*)
+  (:viewport-height *height*)
   (:viewport-title "Flaksefugl"))
 
 (gk:register-resource-package :keyword
