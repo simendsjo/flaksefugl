@@ -39,7 +39,10 @@
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
 (defmethod gk:draw ((app flaksefugl))
-  (gk:draw-image (world->screen (gk:vec2 0 0)) :background)
+  (let* ((page (floor (/ (gk:x *camera*) (gk:x *size*))))
+         (x (* page (gk:x *size*))))
+    (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
+    (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
   (gk:draw-image (world->screen *pos*) :bird))
 
 (defmethod gk:act ((app flaksefugl))
