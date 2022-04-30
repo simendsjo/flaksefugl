@@ -7,8 +7,8 @@
 
 (cl:in-package :flaksefugl)
 
-(defvar *width* 800)
-(defvar *height* 600)
+(defvar *width* 256)
+(defvar *height* 256)
 
 (defvar *gravity* (gk:vec2 0.0 -0.1))
 (defvar *speed* (gk:vec2 0.0 0.0))
@@ -25,11 +25,13 @@
                                    (asdf:system-relative-pathname :flaksefugl "assets/megacrash.itch.io/source/"))
 
 (gk:define-image :bird "Player/bird1.png")
+(gk:define-image :background "Background/Background4.png")
 
 (defmethod gk:post-initialize ((app flaksefugl))
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
 (defmethod gk:draw ((app flaksefugl))
+  (gk:draw-image (gk:vec2 0 0) :background)
   (gk:draw-image *pos* :bird))
 
 (defmethod gk:act ((app flaksefugl))
