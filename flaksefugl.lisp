@@ -7,8 +7,8 @@
 
 (cl:in-package :flaksefugl)
 
-(defvar *width* 256)
-(defvar *height* 256)
+(defvar *size* (gk:vec2 256 256))
+(defvar *size/2* (gk:div *size* 2))
 
 ;; We set these in RESET to easily restart the game and support a more repl
 ;; driven development cycle
@@ -23,8 +23,8 @@
 
 (gk:defgame flaksefugl ()
   ()
-  (:viewport-width *width*)
-  (:viewport-height *height*)
+  (:viewport-width (gk:x *size*))
+  (:viewport-height (gk:y *size*))
   (:viewport-title "Flaksefugl"))
 
 (gk:register-resource-package :keyword
@@ -45,14 +45,14 @@
 (defmethod gk:act ((app flaksefugl))
   (setf *speed* (gk:add *speed* *gravity*))
   (setf *pos* (gk:add *pos* *speed*))
-  (setf (gk:x *camera*) (- (gk:x *pos*) (/ *width* 2))))
+  (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))))
 
 (defun reset ()
   (setf *gravity* (gk:vec2 0.0 -0.1))
   (setf *speed* (gk:vec2 1.0 0.0))
-  (setf *pos* (gk:vec2 (/ *width* 2) (/ *height* 2)))
+  (setf *pos* *size/2*)
   (setf *flaksespeed* (gk:vec2 0.0 5.0))
-  (setf *camera* (gk:subt *pos* (gk:div (gk:vec2 *width* *height*) 2))))
+  (setf *camera* (gk:subt *pos* *size/2*)))
 
 (defun start ()
   (gk:start 'flaksefugl))
