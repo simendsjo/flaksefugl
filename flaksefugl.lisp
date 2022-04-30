@@ -16,6 +16,10 @@
 (defvar *speed* nil)
 (defvar *pos* nil)
 (defvar *flaksespeed* nil)
+(defvar *camera* nil)
+
+(defun world->screen (world)
+  (gk:subt world *camera*))
 
 (gk:defgame flaksefugl ()
   ()
@@ -35,18 +39,20 @@
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
 (defmethod gk:draw ((app flaksefugl))
-  (gk:draw-image (gk:vec2 0 0) :background)
-  (gk:draw-image *pos* :bird))
+  (gk:draw-image (world->screen (gk:vec2 0 0)) :background)
+  (gk:draw-image (world->screen *pos*) :bird))
 
 (defmethod gk:act ((app flaksefugl))
   (setf *speed* (gk:add *speed* *gravity*))
-  (setf *pos* (gk:add *pos* *speed*)))
+  (setf *pos* (gk:add *pos* *speed*))
+  (setf (gk:x *camera*) (- (gk:x *pos*) (/ *width* 2))))
 
 (defun reset ()
   (setf *gravity* (gk:vec2 0.0 -0.1))
   (setf *speed* (gk:vec2 1.0 0.0))
   (setf *pos* (gk:vec2 (/ *width* 2) (/ *height* 2)))
-  (setf *flaksespeed* (gk:vec2 0.0 5.0)))
+  (setf *flaksespeed* (gk:vec2 0.0 5.0))
+  (setf *camera* (gk:subt *pos* (gk:div (gk:vec2 *width* *height*) 2))))
 
 (defun start ()
   (gk:start 'flaksefugl))
