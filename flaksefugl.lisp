@@ -62,10 +62,13 @@
                            (gk:vec2 -10 -10)
                            (gk:vec2 10 4))))
 
+(defun toggle-pause ()
+  (setf *paused* (not *paused*)))
+
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
-  (gk:bind-button :f5 :pressed (lambda () (reset)))
-  (gk:bind-button :f12 :pressed (lambda () (setf *paused* (not *paused*))))
+  (gk:bind-button :enter :pressed (lambda () (reset)))
+  (gk:bind-button :space :pressed (lambda () (toggle-pause)))
   (gk:bind-button :up :pressed (lambda () (flakse))))
 
 (defun draw-pipe (pos)
