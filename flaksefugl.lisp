@@ -26,6 +26,7 @@
 (defvar *camera* nil)
 (defvar *level* nil)
 (defvar *pipes* nil)
+(defvar *score* 0)
 
 (defstruct level
   space-between
@@ -95,10 +96,12 @@
   (do-each (p *pipes*)
     (draw-pipe (pipe-bottom p))
     (draw-pipe (pipe-top p)))
-  (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
+  (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
+  (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1)))
 
 (defmethod gk:act ((app flaksefugl))
   (unless *paused*
+    (setf *score* (floor (/ (gk:x *pos*) 10)))
     (setf *speed* (gk:add *speed* *gravity*))
     (setf *pos* (gk:add *pos* *speed*))
     (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*)))))
@@ -110,6 +113,7 @@
   (setf *flaksespeed* (gk:vec2 0.0 5.0))
   (setf *camera* (gk:subt *pos* *size/2*))
   (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
+  (setf *score* 0)
   (setf *pipes* (make-array 32 :element-type 'pipe))
   (let ((x (gk:x *size/2*)))
     (dotimes (i (array-dimension *pipes* 0))
