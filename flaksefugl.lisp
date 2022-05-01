@@ -25,6 +25,13 @@
 (defvar *flaksespeed* nil)
 (defvar *camera* nil)
 
+(defstruct pipe
+  bottom
+  top)
+
+(defvar *pipe-width* 32)
+(defvar *pipes* (make-array (+ 1 (ceiling (/ (gk:x *size*) *pipe-width*))) :element-type 'pipe))
+
 (defun world->screen (world)
   (gk:subt world *camera*))
 
@@ -48,18 +55,19 @@
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
 (defun draw-pipe (pos)
-  (let ((edge-height 20)
+  (let ((pos (gk:vec2 (gk:x pos) (gk:y pos)))
+        (edge-height 20)
         (mid-height 36))
     (flet ((incy (y) (setf (gk:y pos) (+ (gk:y pos) y))))
       ;; bottom
-      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 80) :width 32 :height edge-height)
+      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 80) :width *pipe-width* :height edge-height)
       (incy edge-height)
       ;; middle
       (dotimes (i (floor (/ (- (gk:y *size*) (* 2 edge-height)) mid-height)))
-        (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 100) :width 32 :height mid-height)
+        (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 100) :width *pipe-width* :height mid-height)
         (incy mid-height))
       ;; top
-      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 140) :width 32 :height edge-height)
+      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 140) :width *pipe-width* :height edge-height)
       (incy edge-height))))
 
 (defmethod gk:draw ((app flaksefugl))
@@ -67,10 +75,9 @@
          (x (* page (gk:x *size*))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
-  (let* ((bottom (- (random (gk:y *size/2*) *random-state*) (gk:y *size*)))
-         (top (+ bottom (gk:y *size*) (random 60 *random-state*) 32)))
-    (draw-pipe (gk:vec2 10 bottom))
-    (draw-pipe (gk:vec2 10 top)))
+  (do-each (p *pipes*)
+    (draw-pipe (pipe-bottom p))
+    (draw-pipe (pipe-top p)))
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
 
 (defmethod gk:act ((app flaksefugl))
@@ -84,7 +91,12 @@
   (setf *speed* (gk:vec2 1.0 0.0))
   (setf *pos* *size/2*)
   (setf *flaksespeed* (gk:vec2 0.0 5.0))
-  (setf *camera* (gk:subt *pos* *size/2*)))
+  (setf *camera* (gk:subt *pos* *size/2*))
+  (dotimes (i (array-dimension *pipes* 0))
+    (let* ((x (* i *pipe-width*))
+           (bottom (- (random (gk:y *size/2*) *random-state*) (gk:y *size*)))
+           (top (+ bottom (gk:y *size*) (random 60 *random-state*) *pipe-width*)))
+      (setf (aref *pipes* i) (make-pipe :bottom (gk:vec2 x bottom) :top (gk:vec2 x top))))))
 
 (defun start ()
   (gk:start 'flaksefugl))
