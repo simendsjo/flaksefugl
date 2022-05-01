@@ -111,7 +111,7 @@
   (setf *camera* (gk:subt *pos* *size/2*))
   (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
   (setf *pipes* (make-array 32 :element-type 'pipe))
-  (let ((x 0))
+  (let ((x (gk:x *size/2*)))
     (dotimes (i (array-dimension *pipes* 0))
       (let* ((opening (level-opening *level*))
              (min-opening (gk:x opening))
