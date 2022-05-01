@@ -1,5 +1,5 @@
 (cl:defpackage :flaksefugl
-  (:use :cl)
+  (:use :cl :alexandria :serapeum)
   (:local-nicknames (#:gk #:trivial-gamekit))
   (:export #:flaksefugl
            #:start
@@ -7,6 +7,8 @@
 
 (cl:in-package :flaksefugl)
 
+
+(defvar *random* (make-random-state t))
 (defvar *paused* nil)
 
 (defvar *size* (gk:vec2 256 256))
@@ -65,7 +67,10 @@
          (x (* page (gk:x *size*))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
-  (draw-pipe (gk:vec2 (gk:x *size*) 0))
+  (let* ((bottom (- (random (gk:y *size/2*) *random-state*) (gk:y *size*)))
+         (top (+ bottom (gk:y *size*) (random 60 *random-state*) 32)))
+    (draw-pipe (gk:vec2 10 bottom))
+    (draw-pipe (gk:vec2 10 top)))
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
 
 (defmethod gk:act ((app flaksefugl))
