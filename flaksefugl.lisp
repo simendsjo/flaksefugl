@@ -53,11 +53,20 @@
 (gk:define-image :background "Background/Background4.png")
 (gk:define-image :pipe "Tileset/Style 1/PipeStyle1.png")
 
+(defun clamp-vec (vec min max)
+  (gk:vec2 (clamp (gk:x vec) (gk:x min) (gk:x max))
+           (clamp (gk:y vec) (gk:y min) (gk:y max))))
+
+(defun flakse ()
+  (setf *speed* (clamp-vec (gk:add *speed* *flaksespeed*)
+                           (gk:vec2 -10 -10)
+                           (gk:vec2 10 4))))
+
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
   (gk:bind-button :f5 :pressed (lambda () (reset)))
   (gk:bind-button :f12 :pressed (lambda () (setf *paused* (not *paused*))))
-  (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
+  (gk:bind-button :up :pressed (lambda () (flakse))))
 
 (defun draw-pipe (pos)
   (let ((pos (gk:vec2 (gk:x pos) (gk:y pos)))
