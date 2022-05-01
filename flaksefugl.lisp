@@ -24,13 +24,18 @@
 (defvar *pos* nil)
 (defvar *flaksespeed* nil)
 (defvar *camera* nil)
+(defvar *level* nil)
+(defvar *pipes* nil)
+
+(defstruct level
+  space-between
+  opening)
 
 (defstruct pipe
   bottom
   top)
 
 (defvar *pipe-width* 32)
-(defvar *pipes* (make-array (+ 1 (ceiling (/ (gk:x *size*) *pipe-width*))) :element-type 'pipe))
 
 (defun world->screen (world)
   (gk:subt world *camera*))
@@ -92,11 +97,23 @@
   (setf *pos* *size/2*)
   (setf *flaksespeed* (gk:vec2 0.0 5.0))
   (setf *camera* (gk:subt *pos* *size/2*))
-  (dotimes (i (array-dimension *pipes* 0))
-    (let* ((x (* i *pipe-width*))
-           (bottom (- (random (gk:y *size/2*) *random-state*) (gk:y *size*)))
-           (top (+ bottom (gk:y *size*) (random 60 *random-state*) *pipe-width*)))
-      (setf (aref *pipes* i) (make-pipe :bottom (gk:vec2 x bottom) :top (gk:vec2 x top))))))
+  (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 2) (* *pipe-width* 4)) :opening (gk:vec2 (* (gk:y *birdsize*) 2) (* (gk:y *birdsize*) 4))))
+  (setf *pipes* (make-array 32 :element-type 'pipe))
+  (let ((x 0))
+    (dotimes (i (array-dimension *pipes* 0))
+      (let* ((opening (level-opening *level*))
+             (min-opening (gk:x opening))
+             (max-opening (gk:y opening))
+             (rndopening (+ min-opening (random (- max-opening min-opening) *random-state*)))
+             (bottom (- (random (- (gk:y *size*) rndopening) *random-state*) (gk:y *size*)))
+             (top (+ bottom rndopening (gk:y *size*)))
+             (between (level-space-between *level*))
+             (min-between (gk:x between))
+             (max-between (gk:y between))
+             (rndbetween (+ min-between (random (- max-between min-between) *random-state*)))
+             (newx (+ x rndbetween)))
+        (setf x newx)
+        (setf (aref *pipes* i) (make-pipe :bottom (gk:vec2 x bottom) :top (gk:vec2 x top)))))))
 
 (defun start ()
   (gk:start 'flaksefugl))
