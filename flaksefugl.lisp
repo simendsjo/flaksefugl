@@ -109,7 +109,7 @@
   (setf *pos* *size/2*)
   (setf *flaksespeed* (gk:vec2 0.0 5.0))
   (setf *camera* (gk:subt *pos* *size/2*))
-  (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 2) (* *pipe-width* 4)) :opening (gk:vec2 (* (gk:y *birdsize*) 2) (* (gk:y *birdsize*) 4))))
+  (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
   (setf *pipes* (make-array 32 :element-type 'pipe))
   (let ((x 0))
     (dotimes (i (array-dimension *pipes* 0))
