@@ -37,6 +37,7 @@
 
 (gk:define-image :bird "Player/bird1.png")
 (gk:define-image :background "Background/Background4.png")
+(gk:define-image :pipe "Tileset/Style 1/PipeStyle1.png")
 
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
@@ -44,11 +45,27 @@
   (gk:bind-button :f12 :pressed (lambda () (setf *paused* (not *paused*))))
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
+(defun draw-pipe (pos)
+  (let ((edge-height 20)
+        (mid-height 36))
+    (flet ((incy (y) (setf (gk:y pos) (+ (gk:y pos) y))))
+      ;; bottom
+      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 80) :width 32 :height edge-height)
+      (incy edge-height)
+      ;; middle
+      (dotimes (i (floor (/ (- (gk:y *size*) (* 2 edge-height)) mid-height)))
+        (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 100) :width 32 :height mid-height)
+        (incy mid-height))
+      ;; top
+      (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 140) :width 32 :height edge-height)
+      (incy edge-height))))
+
 (defmethod gk:draw ((app flaksefugl))
   (let* ((page (floor (/ (gk:x *camera*) (gk:x *size*))))
          (x (* page (gk:x *size*))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
+  (draw-pipe (gk:vec2 (gk:x *size*) 0))
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
 
 (defmethod gk:act ((app flaksefugl))
