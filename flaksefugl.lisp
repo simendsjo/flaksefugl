@@ -10,6 +10,9 @@
 (defvar *size* (gk:vec2 256 256))
 (defvar *size/2* (gk:div *size* 2))
 
+(defvar *birdsize* (gk:vec2 16 16))
+(defvar *birdsize/2* (gk:div *birdsize* 2))
+
 ;; We set these in RESET to easily restart the game and support a more repl
 ;; driven development cycle
 (defvar *gravity* nil)
@@ -43,7 +46,7 @@
          (x (* page (gk:x *size*))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
-  (gk:draw-image (world->screen *pos*) :bird))
+  (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
 
 (defmethod gk:act ((app flaksefugl))
   (setf *speed* (gk:add *speed* *gravity*))
