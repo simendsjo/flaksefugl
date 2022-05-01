@@ -7,6 +7,8 @@
 
 (cl:in-package :flaksefugl)
 
+(defvar *paused* nil)
+
 (defvar *size* (gk:vec2 256 256))
 (defvar *size/2* (gk:div *size* 2))
 
@@ -39,6 +41,7 @@
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
   (gk:bind-button :f5 :pressed (lambda () (reset)))
+  (gk:bind-button :f12 :pressed (lambda () (setf *paused* (not *paused*))))
   (gk:bind-button :up :pressed (lambda () (setf *speed* (gk:add *speed* *flaksespeed*)))))
 
 (defmethod gk:draw ((app flaksefugl))
@@ -49,9 +52,10 @@
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*)))
 
 (defmethod gk:act ((app flaksefugl))
-  (setf *speed* (gk:add *speed* *gravity*))
-  (setf *pos* (gk:add *pos* *speed*))
-  (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))))
+  (unless *paused*
+    (setf *speed* (gk:add *speed* *gravity*))
+    (setf *pos* (gk:add *pos* *speed*))
+    (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*)))))
 
 (defun reset ()
   (setf *gravity* (gk:vec2 0.0 -0.1))
