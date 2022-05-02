@@ -89,14 +89,18 @@
       (incy edge-height))))
 
 (defmethod gk:draw ((app flaksefugl))
+  ;; background
   (let* ((page (floor (/ (gk:x *camera*) (gk:x *size*))))
          (x (* page (gk:x *size*))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
+  ;; pipes
   (do-each (p *pipes*)
     (draw-pipe (pipe-bottom p))
     (draw-pipe (pipe-top p)))
+  ;; bird
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
+  ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1)))
 
 (defmethod gk:act ((app flaksefugl))
@@ -114,6 +118,7 @@
   (setf *camera* (gk:subt *pos* *size/2*))
   (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
   (setf *score* 0)
+  ;; Spawn pipes
   (setf *pipes* (make-array 32 :element-type 'pipe))
   (let ((x (gk:x *size/2*)))
     (dotimes (i (array-dimension *pipes* 0))
