@@ -161,7 +161,7 @@
   (setf *gravity* (gk:vec2 0.0 -0.1))
   (setf *speed* (gk:vec2 1.0 0.0))
   (setf *pos* *size/2*)
-  (setf *flaksespeed* (gk:vec2 0.0 5.0))
+  (setf *flaksespeed* (gk:vec2 0.0 3.0))
   (setf *camera* (gk:subt *pos* *size/2*))
   (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
   (setf *score* 0)
