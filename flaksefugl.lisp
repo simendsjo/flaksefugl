@@ -7,7 +7,6 @@
 
 (cl:in-package :flaksefugl)
 
-
 (defvar *random* (make-random-state t))
 (defvar *paused* nil)
 (defvar *gameover* nil)
