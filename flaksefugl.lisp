@@ -136,9 +136,16 @@ reasonable bounds."
   ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1))
   (when *gameover*
-    (gk:draw-text (format nil "GAME OVER. Press ENTER to restart.") *size/2* :fill-color (gk:vec4 1 1 1 1)))
+    (draw-centered-text "GAME OVER :( ENTER to restart."))
   (when *paused*
-    (gk:draw-text (format nil "PAUSED. Press SPACE to unpause.") *size/2* :fill-color (gk:vec4 1 1 1 1))))
+    (draw-centered-text "PAUSED. SPACE to unpause.")))
+
+(defun draw-centered-text (txt)
+  "Draw TXT at the center of the screen."
+  (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
+    (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color (gk:vec4 1 1 1 1))))
+
+(defun calc-text (txt) (gk:calc-text-bounds txt))
 
 (defun overlapsp (a b)
   "T iff the VEC4 A overlaps with the VEC4 b."
