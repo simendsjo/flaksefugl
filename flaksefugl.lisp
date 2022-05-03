@@ -138,6 +138,13 @@
 
 (defun bird-collided-p ()
   (let ((birdbox (birdbox)))
+    ;; screen top
+    (when (>= (gk:w birdbox) (gk:y *size*))
+      (return-from bird-collided-p t))
+    ;; screen bottom
+    (when (<= (gk:y *pos*) 0)
+      (return-from bird-collided-p t))
+    ;; pipes
     (do-each (p *pipes*)
       (when (or (overlapsp birdbox (pipebox (pipe-bottom p)))
                 (overlapsp birdbox (pipebox (pipe-top p))))
