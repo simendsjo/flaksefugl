@@ -1,0 +1,10 @@
+* Simple Flappy Bird clone
+
+Requires [[https://www.quicklisp.org][quicklisp]] and [[https://borodust.org/projects/trivial-gamekit/][trivial-gamekit]].
+
+#+begin_src common-lisp
+(load "flaksefugl.asd")
+(ql:quickload :flaksefugl)
+(in-package :flaksefugl)
+(start)
+#+end_src
