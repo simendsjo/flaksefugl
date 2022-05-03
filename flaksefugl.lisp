@@ -9,38 +9,62 @@
 
 (cl:in-package :flaksefugl)
 
-(defvar *random* (make-random-state t))
-(defvar *paused* nil)
-(defvar *gameover* nil)
+(defvar *random* (make-random-state t)
+  "Random state")
+(defvar *paused* nil
+  "If T, ACT will not progress the game state.")
+(defvar *gameover* nil
+  "If T, the game is finished.")
 
-(defvar *size* (gk:vec2 256 256))
-(defvar *size/2* (gk:div *size* 2))
+(defvar *size* (gk:vec2 256 256)
+  "Size of the screen. Matches size of background image.")
+(defvar *size/2* (gk:div *size* 2)
+  "Midpoint of size.")
 
-(defvar *birdsize* (gk:vec2 16 16))
-(defvar *birdsize/2* (gk:div *birdsize* 2))
+(defvar *birdsize* (gk:vec2 16 16)
+  "Size of bird. Matches image.")
+(defvar *birdsize/2* (gk:div *birdsize* 2)
+  "Midpoint of bird.")
 
 ;; We set these in RESET to easily restart the game and support a more repl
 ;; driven development cycle
-(defvar *gravity* nil)
-(defvar *speed* nil)
-(defvar *pos* nil)
-(defvar *flaksespeed* nil)
-(defvar *camera* nil)
-(defvar *level* nil)
-(defvar *pipes* nil)
-(defvar *score* 0)
+(defvar *gravity* nil
+  "Speed added to *SPEED* each tick.")
+(defvar *speed* nil
+  "Current speed added to *POS* each tick.")
+(defvar *min-speed* (gk:vec2 -10 -10)
+  "Maximum negative *SPEED* values.")
+(defvar *max-speed* (gk:vec2 10 4)
+  "Maximum positive *SPEED* values.")
+(defvar *pos* nil
+  "Position of bird in world coordinates.")
+(defvar *flaksespeed* nil
+  "Speed added to *POS* when the bird flaps its wings.")
+(defvar *camera* nil
+  "Position of camera. Things in world coordinates is translated to screen using this value.")
+(defvar *pipes* nil
+  "The pipes in the game.")
+(defvar *level* nil
+  "Current level. Used for difficulty and scoring.")
+(defvar *score* nil
+  "Current score.")
 
 (defstruct level
+  "Data for level"
   space-between
   opening)
 
 (defstruct pipe
+  "Complete vertical pipe, both TOP part and BOTTOM part. Both are SIZE height,
+so BOTTOM is placed below the screen, and TOP will extend the screen to the top."
   bottom
   top)
 
-(defvar *pipe-width* 32)
+(defvar *pipe-width* 32
+  "Width of a pipe. Matches the pipe image width.")
 
 (defun world->screen (world)
+  "Translates a world coordinate to screen coordinate."
   (gk:subt world *camera*))
 
 (gk:defgame flaksefugl ()
@@ -57,15 +81,19 @@
 (gk:define-image :pipe "Tileset/Style 1/PipeStyle1.png")
 
 (defun clamp-vec (vec min max)
+  "Clamps the VEC2, VEC, between the MIN VEC2 and MAX VEC2."
   (gk:vec2 (clamp (gk:x vec) (gk:x min) (gk:x max))
            (clamp (gk:y vec) (gk:y min) (gk:y max))))
 
 (defun flakse ()
+  "Flap bird wings. Adds *FLAKSESPEED* to *SPEED* while keeping it within
+reasonable bounds."
   (setf *speed* (clamp-vec (gk:add *speed* *flaksespeed*)
-                           (gk:vec2 -10 -10)
-                           (gk:vec2 10 4))))
+                           *min-speed*
+                           *max-speed*)))
 
 (defun toggle-pause ()
+  "Toggle *PAUSED*."
   (setf *paused* (not *paused*)))
 
 (defmethod gk:post-initialize ((app flaksefugl))
@@ -74,7 +102,10 @@
   (gk:bind-button :space :pressed (lambda () (toggle-pause)))
   (gk:bind-button :up :pressed (lambda () (flakse))))
 
+;; FIXME: We draw UP TO *size* height, but don't record it. For the bottom pipe,
+;; it might mean we collide above the pipe!
 (defun draw-pipe (pos)
+  "Draws a pipe starting at POS up to *SIZE* height."
   (let ((pos (gk:vec2 (gk:x pos) (gk:y pos)))
         (edge-height 20)
         (mid-height 36))
@@ -108,6 +139,7 @@
     (gk:draw-text (format nil "GAME OVER") *size/2* :fill-color (gk:vec4 1 1 1 1))))
 
 (defun overlapsp (a b)
+  "T iff the VEC4 A overlaps with the VEC4 b."
   (let ((ax (gk:x a))
         (ay (gk:y a))
         (axe (gk:z a))
@@ -122,6 +154,7 @@
          (<= ay bye))))
 
 (defun pipebox (pipe)
+  "Bounding box for pipe starting at position PIPE."
   (let ((x (gk:x pipe))
         (y (gk:y pipe)))
     (gk:vec4 x
@@ -130,6 +163,7 @@
              (+ y (gk:y *size*)))))
 
 (defun birdbox ()
+  "Bounding box for bird."
   (let ((x (gk:x *pos*))
         (y (gk:y *pos*)))
     (gk:vec4 x
@@ -138,6 +172,7 @@
              (+ y (gk:y *birdsize*)))))
 
 (defun bird-collided-p ()
+  "T iff the bird collides with any pipe or top/bottom of the screen."
   (let ((birdbox (birdbox)))
     ;; screen top
     (when (>= (gk:w birdbox) (gk:y *size*))
@@ -160,6 +195,7 @@
     (setf *gameover* (bird-collided-p))))
 
 (defun reset ()
+  "Reset game."
   (setf *gravity* (gk:vec2 0.0 -0.1))
   (setf *speed* (gk:vec2 1.0 0.0))
   (setf *pos* *size/2*)
