@@ -10,6 +10,7 @@
 
 (defvar *random* (make-random-state t))
 (defvar *paused* nil)
+(defvar *gameover* nil)
 
 (defvar *size* (gk:vec2 256 256))
 (defvar *size/2* (gk:div *size* 2))
@@ -101,14 +102,54 @@
   ;; bird
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
   ;; score
-  (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1)))
+  (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1))
+  (when *gameover*
+    (gk:draw-text (format nil "GAME OVER") *size/2* :fill-color (gk:vec4 1 1 1 1))))
+
+(defun overlapsp (a b)
+  (let ((ax (gk:x a))
+        (ay (gk:y a))
+        (axe (gk:z a))
+        (aye (gk:w a))
+        (bx (gk:x b))
+        (by (gk:y b))
+        (bxe (gk:z b))
+        (bye (gk:w b)))
+    (and (>= axe bx)
+         (>= aye by)
+         (<= ax bxe)
+         (<= ay bye))))
+
+(defun pipebox (pipe)
+  (let ((x (gk:x pipe))
+        (y (gk:y pipe)))
+    (gk:vec4 x
+             y
+             (+ x *pipe-width*)
+             (+ y (gk:y *size*)))))
+
+(defun birdbox ()
+  (let ((x (gk:x *pos*))
+        (y (gk:y *pos*)))
+    (gk:vec4 x
+             y
+             (+ x (gk:x *birdsize*))
+             (+ y (gk:y *birdsize*)))))
+
+(defun bird-collided-p ()
+  (let ((birdbox (birdbox)))
+    (do-each (p *pipes*)
+      (when (or (overlapsp birdbox (pipebox (pipe-bottom p)))
+                (overlapsp birdbox (pipebox (pipe-top p))))
+        (return-from bird-collided-p t)))))
 
 (defmethod gk:act ((app flaksefugl))
-  (unless *paused*
+  (unless (or *gameover* *paused*)
     (setf *score* (floor (/ (gk:x *pos*) 10)))
     (setf *speed* (gk:add *speed* *gravity*))
     (setf *pos* (gk:add *pos* *speed*))
-    (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*)))))
+    (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*)))
+    (setf *gameover* (bird-collided-p))))
 
 (defun reset ()
   (setf *gravity* (gk:vec2 0.0 -0.1))
@@ -118,6 +159,7 @@
   (setf *camera* (gk:subt *pos* *size/2*))
   (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
   (setf *score* 0)
+  (setf *gameover* nil)
   ;; Spawn pipes
   (setf *pipes* (make-array 32 :element-type 'pipe))
   (let ((x (gk:x *size/2*)))
