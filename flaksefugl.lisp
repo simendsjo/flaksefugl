@@ -42,6 +42,8 @@
   "Speed added to *POS* when the bird flaps its wings.")
 (defvar *camera* nil
   "Position of camera. Things in world coordinates is translated to screen using this value.")
+(defvar *background-speed* nil
+  "Speed of background image to give parallax effect.")
 (defvar *pipes* nil
   "The pipes in the game.")
 (defvar *level* nil
@@ -123,8 +125,10 @@ reasonable bounds."
 
 (defmethod gk:draw ((app flaksefugl))
   ;; background
-  (let* ((page (floor (/ (gk:x *camera*) (gk:x *size*))))
-         (x (* page (gk:x *size*))))
+  (let* ((start (* (gk:x *camera*) (gk:x *background-speed*)))
+         (diff (- (gk:x *camera*) start))
+         (pages (floor (/ diff (gk:x *size*))))
+         (x (+ start (* pages (gk:x *size*)))))
     (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
     (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
   ;; pipes
@@ -208,6 +212,7 @@ reasonable bounds."
         *pos* *size/2*
         *flaksespeed* (gk:vec2 0.0 3.0)
         *camera* (gk:subt *pos* *size/2*)
+        *background-speed* (gk:vec2 0.25 0.0)
         *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7)))
         *score* 0
         *gameover* nil
