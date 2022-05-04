@@ -197,24 +197,24 @@ reasonable bounds."
 
 (defmethod gk:act ((app flaksefugl))
   (unless (or *gameover* *paused*)
-    (setf *score* (floor (/ (gk:x *pos*) 10)))
-    (setf *speed* (gk:add *speed* *gravity*))
-    (setf *pos* (gk:add *pos* *speed*))
-    (setf (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*)))
-    (setf *gameover* (bird-collided-p))))
+    (setf *score* (floor (/ (gk:x *pos*) 10))
+          *speed* (gk:add *speed* *gravity*)
+          *pos* (gk:add *pos* *speed*)
+          (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))
+          *gameover* (bird-collided-p))))
 
 (defun reset ()
   "Reset game."
-  (setf *gravity* (gk:vec2 0.0 -0.1))
-  (setf *speed* (gk:vec2 1.0 0.0))
-  (setf *pos* *size/2*)
-  (setf *flaksespeed* (gk:vec2 0.0 3.0))
-  (setf *camera* (gk:subt *pos* *size/2*))
-  (setf *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7))))
-  (setf *score* 0)
-  (setf *gameover* nil)
+  (setf *gravity* (gk:vec2 0.0 -0.1)
+        *speed* (gk:vec2 1.0 0.0)
+        *pos* *size/2*
+        *flaksespeed* (gk:vec2 0.0 3.0)
+        *camera* (gk:subt *pos* *size/2*)
+        *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7)))
+        *score* 0
+        *gameover* nil
+        *pipes* (make-array 32 :element-type 'pipe))
   ;; Spawn pipes
-  (setf *pipes* (make-array 32 :element-type 'pipe))
   (let ((x (gk:x *size/2*)))
     (dotimes (i (array-dimension *pipes* 0))
       (let* ((opening (level-opening *level*))
