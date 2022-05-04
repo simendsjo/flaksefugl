@@ -50,6 +50,8 @@
   "The pipes in the game.")
 (defvar *level* nil
   "Current level. Used for difficulty and scoring.")
+(defvar *level-complete* nil
+  "T iff the level is currently completed.")
 (defvar *score* nil
   "Current score.")
 
@@ -103,7 +105,12 @@ reasonable bounds."
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
   (gk:bind-button :enter :pressed (lambda () (reset)))
-  (gk:bind-button :space :pressed (lambda () (toggle-pause)))
+  (gk:bind-button :space :pressed (lambda ()
+                                    (when *level-complete*
+                                      (setf *speed* (gk:add *speed* (gk:vec2 0.25 0))
+                                            *level-complete* nil)
+                                      (make-pipes))
+                                    (toggle-pause)))
   (gk:bind-button :up :pressed (lambda () (flakse))))
 
 ;; FIXME: We draw UP TO *size* height, but don't record it. For the bottom pipe,
@@ -141,10 +148,10 @@ reasonable bounds."
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
   ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color *white*)
-  (when *gameover*
-    (draw-centered-text "GAME OVER :( ENTER to restart."))
-  (when *paused*
-    (draw-centered-text "PAUSED. SPACE to unpause.")))
+  (cond
+    (*gameover* (draw-centered-text "GAME OVER :( ENTER to restart."))
+    (*level-complete* (draw-centered-text "Good job! Press SPACE to continue."))
+    (*paused* (draw-centered-text "PAUSED. SPACE to unpause."))))
 
 (defun draw-centered-text (txt)
   "Draw TXT at the center of the screen."
@@ -205,21 +212,13 @@ reasonable bounds."
           *speed* (gk:add *speed* *gravity*)
           *pos* (gk:add *pos* *speed*)
           (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))
-          *gameover* (bird-collided-p))))
+          *gameover* (bird-collided-p))
+    (let ((last-pipe (aref *pipes* (- (array-dimension *pipes* 0) 1))))
+      (when (> (gk:x *pos*) (+ (gk:x (pipe-bottom last-pipe)) *pipe-width*))
+        (toggle-pause)
+        (setf *level-complete* t)))))
 
-(defun reset ()
-  "Reset game."
-  (setf *gravity* (gk:vec2 0.0 -0.1)
-        *speed* (gk:vec2 1.0 0.0)
-        *pos* *size/2*
-        *flaksespeed* (gk:vec2 0.0 3.0)
-        *camera* (gk:subt *pos* *size/2*)
-        *background-speed* (gk:vec2 0.25 0.0)
-        *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7)))
-        *score* 0
-        *gameover* nil
-        *pipes* (make-array 32 :element-type 'pipe))
-  ;; Spawn pipes
+(defun make-pipes ()
   (let ((x (gk:x *size/2*)))
     (dotimes (i (array-dimension *pipes* 0))
       (let* ((opening (level-opening *level*))
@@ -235,6 +234,21 @@ reasonable bounds."
              (newx (+ x rndbetween)))
         (setf x newx)
         (setf (aref *pipes* i) (make-pipe :bottom (gk:vec2 x bottom) :top (gk:vec2 x top)))))))
+
+(defun reset ()
+  "Reset game."
+  (setf *gravity* (gk:vec2 0.0 -0.1)
+        *speed* (gk:vec2 1.0 0.0)
+        *pos* *size/2*
+        *flaksespeed* (gk:vec2 0.0 3.0)
+        *camera* (gk:subt *pos* *size/2*)
+        *background-speed* (gk:vec2 0.25 0.0)
+        *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7)))
+        *level-complete* nil
+        *score* 0
+        *gameover* nil
+        *pipes* (make-array 32 :element-type 'pipe))
+  (make-pipes))
 
 (defun start ()
   (gk:start 'flaksefugl))
