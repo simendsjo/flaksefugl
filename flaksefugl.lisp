@@ -18,8 +18,11 @@
 (defvar *gameover* nil
   "If T, the game is finished.")
 
-(defvar *size* (gk:vec2 256 256)
-  "Size of the screen. Matches size of background image.")
+(defvar *background-size* (gk:vec2 256 256)
+  "Size of background image.")
+
+(defvar *size* (gk:vec2 (* (gk:x *background-size*) 2) (gk:y *background-size*))
+  "Size of the screen.")
 (defvar *size/2* (gk:div *size* 2)
   "Midpoint of size.")
 
@@ -136,10 +139,10 @@ reasonable bounds."
   ;; background
   (let* ((start (floor (* (gk:x *camera*) (gk:x *background-speed*))))
          (diff (- (gk:x *camera*) start))
-         (pages (floor (/ diff (gk:x *size*))))
-         (x (+ start (* pages (gk:x *size*)))))
-    (gk:draw-image (world->screen (gk:vec2 x 0)) :background)
-    (gk:draw-image (world->screen (gk:vec2 (+ x (gk:x *size*)) 0)) :background))
+         (pages (floor (/ diff (gk:x *background-size*))))
+         (x (+ start (* pages (gk:x *background-size*)))))
+    (dotimes (i (+ (ceiling (/ (gk:x *size*) (gk:x *background-size*))) 1))
+      (gk:draw-image (world->screen (gk:vec2 (+ x (* (gk:x *background-size*) i)) 0)) :background)))
   ;; pipes
   (do-each (p *pipes*)
     (draw-pipe (pipe-bottom p))
