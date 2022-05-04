@@ -125,7 +125,7 @@ reasonable bounds."
 
 (defmethod gk:draw ((app flaksefugl))
   ;; background
-  (let* ((start (* (gk:x *camera*) (gk:x *background-speed*)))
+  (let* ((start (floor (* (gk:x *camera*) (gk:x *background-speed*))))
          (diff (- (gk:x *camera*) start))
          (pages (floor (/ diff (gk:x *size*))))
          (x (+ start (* pages (gk:x *size*)))))
