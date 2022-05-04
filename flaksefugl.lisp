@@ -145,8 +145,6 @@ reasonable bounds."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
     (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color (gk:vec4 1 1 1 1))))
 
-(defun calc-text (txt) (gk:calc-text-bounds txt))
-
 (defun overlapsp (a b)
   "T iff the VEC4 A overlaps with the VEC4 b."
   (let ((ax (gk:x a))
