@@ -9,6 +9,8 @@
 
 (cl:in-package :flaksefugl)
 
+(defvar *white* (gk:vec4 1 1 1 1))
+
 (defvar *random* (make-random-state t)
   "Random state")
 (defvar *paused* nil
@@ -138,7 +140,7 @@ reasonable bounds."
   ;; bird
   (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
   ;; score
-  (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color (gk:vec4 1 1 1 1))
+  (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color *white*)
   (when *gameover*
     (draw-centered-text "GAME OVER :( ENTER to restart."))
   (when *paused*
@@ -147,7 +149,7 @@ reasonable bounds."
 (defun draw-centered-text (txt)
   "Draw TXT at the center of the screen."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
-    (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color (gk:vec4 1 1 1 1))))
+    (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color *white*)))
 
 (defun overlapsp (a b)
   "T iff the VEC4 A overlaps with the VEC4 b."
