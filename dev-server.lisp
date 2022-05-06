@@ -1,6 +1,5 @@
 ;; I'm unable to get --script to work properly
-;; Run with
-;;  LD_LIBRARY_PATH=$LIBRARY_PATH sbcl --load dev-server.lisp
+;; Run the ./dev script to start
 (asdf:load-system :slynk)
 (slynk:create-server :port 4008)
 
