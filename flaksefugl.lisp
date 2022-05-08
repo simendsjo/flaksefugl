@@ -58,15 +58,25 @@
 (defvar *score* nil
   "Current score.")
 
+(defvar +empty-vec2+ (gk:vec2 0 0))
+
 (defstruct rect
   "Rectangle represented by botto-left POS and SIZE"
-  pos
-  size)
+  (pos +empty-vec2+)
+  (size +empty-vec2+))
+
+(defvar +empty-rect+
+  (make-rect :pos (gk:vec2 0 0)
+             :size (gk:vec2 0 0)))
 
 (defstruct bbox
   "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
-  beg
-  end)
+  (beg +empty-vec2+)
+  (end +empty-vec2+))
+
+(defvar +empty-bbox+
+  (make-bbox :beg (gk:vec2 0 0)
+             :end (gk:vec2 0 0)))
 
 (defun rect->bbox (rect)
   (make-bbox :beg (rect-pos rect)
@@ -104,8 +114,8 @@
 (defstruct pipe
   "Complete vertical pipe, both TOP part and BOTTOM part. Both are SIZE height,
 so BOTTOM is placed below the screen, and TOP will extend the screen to the top."
-  bottom
-  top)
+  (bottom +empty-rect+)
+  (top +empty-rect+))
 
 (defvar *pipe-width* 32
   "Width of a pipe. Matches the pipe image width.")
