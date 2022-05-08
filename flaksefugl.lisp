@@ -58,6 +58,44 @@
 (defvar *score* nil
   "Current score.")
 
+(defstruct rect
+  "Rectangle represented by botto-left POS and SIZE"
+  pos
+  size)
+
+(defstruct bbox
+  "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
+  beg
+  end)
+
+(defun rect->bbox (rect)
+  (make-bbox :beg (rect-pos rect)
+             :end (gk:add (rect-pos rect) (rect-size rect))))
+
+(defun bbox->rect (bbox)
+  (make-rect :pos (bbox-beg bbox)
+             :size (gk:subt (bbox-end bbox) (bbox-beg bbox))))
+
+(defmethod intersectsp ((a bbox) (b bbox))
+  ;; https://silentmatt.com/rectangle-intersection/
+  (let ((a1 (bbox-beg a))
+        (a2 (bbox-end a))
+        (b1 (bbox-beg b))
+        (b2 (bbox-end b)))
+    (and (< (gk:x a1) (gk:x b2))
+         (> (gk:x a2) (gk:x b1))
+         (< (gk:y a1) (gk:y b2))
+         (> (gk:y a2) (gk:y b1)))))
+
+(defmethod intersectsp ((a rect) (b rect))
+  (intersectsp (rect->bbox a) (rect->bbox b)))
+
+(defmethod intersectsp ((a rect) (b bbox))
+  (intersectsp (rect->bbox a) b))
+
+(defmethod intersectsp ((a bbox) (b rect))
+  (intersectsp a (rect->bbox b)))
+
 (defstruct level
   "Data for level"
   space-between
@@ -161,52 +199,29 @@ reasonable bounds."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
     (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color *white*)))
 
-(defun overlapsp (a b)
-  "T iff the VEC4 A overlaps with the VEC4 b."
-  (let ((ax (gk:x a))
-        (ay (gk:y a))
-        (axe (gk:z a))
-        (aye (gk:w a))
-        (bx (gk:x b))
-        (by (gk:y b))
-        (bxe (gk:z b))
-        (bye (gk:w b)))
-    (and (>= axe bx)
-         (>= aye by)
-         (<= ax bxe)
-         (<= ay bye))))
-
 (defun pipebox (pipe)
   "Bounding box for pipe starting at position PIPE."
-  (let ((x (gk:x pipe))
-        (y (gk:y pipe)))
-    (gk:vec4 x
-             y
-             (+ x *pipe-width*)
-             (+ y (gk:y *size*)))))
+  (make-bbox :beg pipe
+             :end (gk:add pipe (gk:vec2 *pipe-width* (gk:y *size*)))))
 
 (defun birdbox ()
   "Bounding box for bird."
-  (let ((x (gk:x *pos*))
-        (y (gk:y *pos*)))
-    (gk:vec4 x
-             y
-             (+ x (gk:x *birdsize*))
-             (+ y (gk:y *birdsize*)))))
+  (make-bbox :beg *pos*
+             :end (gk:add *pos* *birdsize*)))
 
 (defun bird-collided-p ()
   "T iff the bird collides with any pipe or top/bottom of the screen."
   (let ((birdbox (birdbox)))
     ;; screen top
-    (when (>= (gk:w birdbox) (gk:y *size*))
+    (when (>= (gk:y (bbox-end birdbox)) (gk:y *size*))
       (return-from bird-collided-p t))
     ;; screen bottom
-    (when (<= (gk:y *pos*) 0)
+    (when (<= (gk:y (bbox-beg birdbox)) 0)
       (return-from bird-collided-p t))
     ;; pipes
     (do-each (p *pipes*)
-      (when (or (overlapsp birdbox (pipebox (pipe-bottom p)))
-                (overlapsp birdbox (pipebox (pipe-top p))))
+      (when (or (intersectsp birdbox (pipebox (pipe-bottom p)))
+                (intersectsp birdbox (pipebox (pipe-top p))))
         (return-from bird-collided-p t)))))
 
 (defmethod gk:act ((app flaksefugl))
