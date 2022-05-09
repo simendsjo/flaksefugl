@@ -9,6 +9,10 @@
 
 (cl:in-package :flaksefugl)
 
+(defun negate (x)
+  "Negate X."
+  (* x -1))
+
 (defvar *white* (gk:vec4 1 1 1 1))
 
 (defvar *random* (make-random-state t)
@@ -176,10 +180,12 @@ reasonable bounds."
 ;; FIXME: We draw UP TO *size* height, but don't record it. For the bottom pipe,
 ;; it might mean we collide above the pipe!
 (defun draw-pipe (rect)
-  "Draws a pipe starting at POS up to *SIZE* height."
+  "Draws a pipe at RECT. A full *SIZE* rect will be drawn, but displaced below
+or above the screen."
   (let* ((rect (copy-rect rect))
+         (free-y (- (gk:y *size*) (gk:y (rect-size rect))))
          (pos (rect-pos rect))
-         (size (rect-size rect))
+         (pos (gk:add pos (gk:vec2 0 (if (= (gk:y pos) 0) (negate free-y) free-y))))
          (edge-height 20)
          (mid-height 36))
     (flet ((incy (y) (setf (gk:y pos) (+ (gk:y pos) y))))
@@ -187,7 +193,7 @@ reasonable bounds."
       (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 80) :width *pipe-width* :height edge-height)
       (incy edge-height)
       ;; middle
-      (dotimes (i (floor (/ (- (gk:y size) (* 2 edge-height)) mid-height)))
+      (dotimes (i (floor (/ (- (gk:y *size*) (* 2 edge-height)) mid-height)))
         (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 100) :width *pipe-width* :height mid-height)
         (incy mid-height))
       ;; top
@@ -250,23 +256,17 @@ reasonable bounds."
         (toggle-pause)
         (setf *level-complete* t)))))
 
+
+(defun make-sin-pipes ()
+  (let* ((n 32)
+         (s (/ pi n))
+         (pipes (make-array n)))
+    (do ((i 0 (+ i 1)))
+        ((>= i n) pipes)
+      (setf (aref pipes i) (make-rect :pos (gk:vec2 (* i *pipe-width*) 0)
+                                      :size (gk:vec2 *pipe-width* (* (gk:y *size/2*) (sin (* i s)))))))))
 (defun make-pipes ()
-  (let ((x (gk:x *size/2*)))
-    (dotimes (i (array-dimension *pipes* 0))
-      (let* ((opening (level-opening *level*))
-             (min-opening (gk:x opening))
-             (max-opening (gk:y opening))
-             (rndopening (+ min-opening (random (- max-opening min-opening) *random-state*)))
-             (bottom (- (random (- (gk:y *size*) rndopening) *random-state*) (gk:y *size*)))
-             (top (+ bottom rndopening (gk:y *size*)))
-             (between (level-space-between *level*))
-             (min-between (gk:x between))
-             (max-between (gk:y between))
-             (rndbetween (+ min-between (random (- max-between min-between) *random-state*)))
-             (newx (+ x rndbetween)))
-        (setf x newx)
-        (setf (aref *pipes* i) (make-rect :pos (gk:vec2 x bottom)
-                                          :size (gk:vec2 *pipe-width* (gk:y *size*))))))))
+  (setf *pipes* (make-sin-pipes)))
 
 (defun reset ()
   "Reset game."
