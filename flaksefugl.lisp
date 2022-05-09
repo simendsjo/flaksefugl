@@ -127,11 +127,6 @@
 (defmethod intersectsp ((a bbox) (b rect))
   (intersectsp a (rect->bbox b)))
 
-(defstruct level
-  "Data for level"
-  space-between
-  opening)
-
 (defun world->screen (world)
   "Translates a world coordinate to screen coordinate."
   (gk:subt world *camera*))
@@ -171,7 +166,8 @@ reasonable bounds."
   (gk:bind-button :space :pressed (lambda ()
                                     (when *level-complete*
                                       (setf *speed* (gk:add *speed* (gk:vec2 0.25 0))
-                                            *level-complete* nil)
+                                            *level-complete* nil
+                                            *level* (+ *level* 1))
                                       (make-pipes))
                                     (toggle-pause)))
   (gk:bind-button :up :pressed (lambda () (flakse))))
@@ -245,7 +241,7 @@ or above the screen."
 
 (defmethod gk:act ((app flaksefugl))
   (unless (or *gameover* *paused*)
-    (setf *score* (floor (/ (gk:x *pos*) 10))
+    (setf *score* (+ *score* *level*)
           *speed* (gk:add *speed* *gravity*)
           *pos* (gk:add *pos* *speed*)
           (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))
@@ -275,11 +271,11 @@ or above the screen."
         *flaksespeed* (gk:vec2 0.0 3.0)
         *camera* (gk:subt *pos* *size/2*)
         *background-speed* (gk:vec2 0.25 0.0)
-        *level* (make-level :space-between (gk:vec2 (* *pipe-width* 3) (* *pipe-width* 7)) :opening (gk:vec2 (* (gk:y *birdsize*) 3) (* (gk:y *birdsize*) 7)))
+        *level* 1
         *level-complete* nil
         *score* 0
         *gameover* nil
-        *pipes* (make-array 32 :element-type 'rect))
+        *pipes* nil)
   (make-pipes))
 
 (defun start ()
