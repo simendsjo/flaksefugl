@@ -219,10 +219,6 @@ reasonable bounds."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
     (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color *white*)))
 
-(defun pipebox (pipe)
-  "Bounding box for pipe starting at position PIPE."
-  (rect->bbox pipe))
-
 (defun birdbox ()
   "Bounding box for bird."
   (make-bbox :beg *pos*
@@ -239,7 +235,7 @@ reasonable bounds."
       (return-from bird-collided-p t))
     ;; pipes
     (do-each (p *pipes*)
-      (when (intersectsp birdbox (pipebox p))
+      (when (intersectsp birdbox (rect->bbox p))
         (return-from bird-collided-p t)))))
 
 (defmethod gk:act ((app flaksefugl))
