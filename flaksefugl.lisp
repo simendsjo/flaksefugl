@@ -13,6 +13,13 @@
   "Negate X."
   (* x -1))
 
+;; vectors are represented as arrays, so copy will only shallow copy and we
+;; still reference the same underlying array
+(defun copy-vec2 (vec)
+  (gk:vec2 (gk:x vec) (gk:y vec)))
+
+(defvar +empty-vec2+ (gk:vec2 0 0))
+
 (defvar *white* (gk:vec4 1 1 1 1))
 
 (defvar *random* (make-random-state t)
@@ -64,14 +71,6 @@
   "T iff the level is currently completed.")
 (defvar *score* nil
   "Current score.")
-
-
-;; vectors are represented as arrays, so copy will only shallow copy and we
-;; still reference the same underlying array
-(defun copy-vec2 (vec)
-  (gk:vec2 (gk:x vec) (gk:y vec)))
-
-(defvar +empty-vec2+ (gk:vec2 0 0))
 
 ;; Disable copier to create a deep copy
 (defstruct (rect (:copier nil))
