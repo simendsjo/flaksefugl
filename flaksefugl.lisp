@@ -262,7 +262,7 @@ or above the screen."
          (pipes (make-array n)))
     (do ((i 0 (+ i 1)))
         ((>= i n) pipes)
-      (setf (aref pipes i) (make-rect :pos (gk:vec2 (* i *pipe-width*) 0)
+      (setf (aref pipes i) (make-rect :pos (gk:vec2 (+ (* i *pipe-width*) (gk:x *size/2*)) 0)
                                       :size (gk:vec2 *pipe-width* (* (gk:y *size/2*) (sin (* i s)))))))))
 (defun make-pipes ()
   (setf *pipes* (make-sin-pipes)))
