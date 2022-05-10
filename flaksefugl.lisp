@@ -33,7 +33,7 @@
 
 ;; Disable copier to create a deep copy
 (defstruct (rect (:copier nil))
-  "Rectangle represented by botto-left POS and SIZE"
+  "Rectangle represented by bottom-left POS and SIZE"
   (pos (empty-vec2))
   (size (empty-vec2)))
 
