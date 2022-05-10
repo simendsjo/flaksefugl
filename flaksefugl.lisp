@@ -133,9 +133,9 @@
 (defvar *score* nil
   "Current score.")
 
-(defun world->screen (world)
+(defun world->screen (world &optional (camera *camera*))
   "Translates a world coordinate to screen coordinate."
-  (gk:subt world *camera*))
+  (gk:subt world camera))
 
 (gk:defgame flaksefugl ()
   ()
