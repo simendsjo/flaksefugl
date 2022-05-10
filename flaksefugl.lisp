@@ -150,7 +150,7 @@
       (return-from bird-collided-p t))
     ;; pipes
     (do-each (p *pipes*)
-      (when (intersectsp birdbox (rect->bbox p))
+      (when (intersectsp birdbox p)
         (return-from bird-collided-p t)))))
 
 (gk:defgame flaksefugl ()
