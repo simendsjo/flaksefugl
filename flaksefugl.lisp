@@ -26,58 +26,6 @@
   "Creates an empty VEC2."
   (copy-vec2 +empty-vec2+))
 
-(defvar *white* (gk:vec4 1 1 1 1))
-
-(defvar *random* (make-random-state t)
-  "Random state")
-(defvar *paused* nil
-  "If T, ACT will not progress the game state.")
-(defvar *gameover* nil
-  "If T, the game is finished.")
-
-(defvar *background-size* (gk:vec2 256 256)
-  "Size of background image.")
-
-(defvar *size* (gk:vec2 (* (gk:x *background-size*) 2) (gk:y *background-size*))
-  "Size of the screen.")
-(defvar *size/2* (gk:div *size* 2)
-  "Midpoint of size.")
-
-(defvar *birdsize* (gk:vec2 16 16)
-  "Size of bird. Matches image.")
-(defvar *birdsize/2* (gk:div *birdsize* 2)
-  "Midpoint of bird.")
-
-(defvar *pipe-width* 32
-  "Width of a pipe. Matches the pipe image width.")
-
-;; We set these in RESET to easily restart the game and support a more repl
-;; driven development cycle
-(defvar *gravity* nil
-  "Speed added to *SPEED* each tick.")
-(defvar *speed* nil
-  "Current speed added to *POS* each tick.")
-(defvar *min-speed* (gk:vec2 -10 -10)
-  "Maximum negative *SPEED* values.")
-(defvar *max-speed* (gk:vec2 10 4)
-  "Maximum positive *SPEED* values.")
-(defvar *pos* nil
-  "Position of bird in world coordinates.")
-(defvar *flaksespeed* nil
-  "Speed added to *POS* when the bird flaps its wings.")
-(defvar *camera* nil
-  "Position of camera. Things in world coordinates is translated to screen using this value.")
-(defvar *background-speed* nil
-  "Speed of background image to give parallax effect.")
-(defvar *pipes* nil
-  "The pipes in the game.")
-(defvar *level* nil
-  "Current level. Used for difficulty and scoring.")
-(defvar *level-complete* nil
-  "T iff the level is currently completed.")
-(defvar *score* nil
-  "Current score.")
-
 ;; Disable copier to create a deep copy
 (defstruct (rect (:copier nil))
   "Rectangle represented by botto-left POS and SIZE"
@@ -132,6 +80,58 @@
 
 (defmethod intersectsp ((a bbox) (b rect))
   (intersectsp a (rect->bbox b)))
+
+(defvar *white* (gk:vec4 1 1 1 1))
+
+(defvar *random* (make-random-state t)
+  "Random state")
+(defvar *paused* nil
+  "If T, ACT will not progress the game state.")
+(defvar *gameover* nil
+  "If T, the game is finished.")
+
+(defvar *background-size* (gk:vec2 256 256)
+  "Size of background image.")
+
+(defvar *size* (gk:vec2 (* (gk:x *background-size*) 2) (gk:y *background-size*))
+  "Size of the screen.")
+(defvar *size/2* (gk:div *size* 2)
+  "Midpoint of size.")
+
+(defvar *birdsize* (gk:vec2 16 16)
+  "Size of bird. Matches image.")
+(defvar *birdsize/2* (gk:div *birdsize* 2)
+  "Midpoint of bird.")
+
+(defvar *pipe-width* 32
+  "Width of a pipe. Matches the pipe image width.")
+
+;; We set these in RESET to easily restart the game and support a more repl
+;; driven development cycle
+(defvar *gravity* nil
+  "Speed added to *SPEED* each tick.")
+(defvar *speed* nil
+  "Current speed added to *POS* each tick.")
+(defvar *min-speed* (gk:vec2 -10 -10)
+  "Maximum negative *SPEED* values.")
+(defvar *max-speed* (gk:vec2 10 4)
+  "Maximum positive *SPEED* values.")
+(defvar *pos* nil
+  "Position of bird in world coordinates.")
+(defvar *flaksespeed* nil
+  "Speed added to *POS* when the bird flaps its wings.")
+(defvar *camera* nil
+  "Position of camera. Things in world coordinates is translated to screen using this value.")
+(defvar *background-speed* nil
+  "Speed of background image to give parallax effect.")
+(defvar *pipes* nil
+  "The pipes in the game.")
+(defvar *level* nil
+  "Current level. Used for difficulty and scoring.")
+(defvar *level-complete* nil
+  "T iff the level is currently completed.")
+(defvar *score* nil
+  "Current score.")
 
 (defun world->screen (world)
   "Translates a world coordinate to screen coordinate."
