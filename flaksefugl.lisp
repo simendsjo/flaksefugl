@@ -26,6 +26,11 @@
   "Creates an empty VEC2."
   (copy-vec2 +empty-vec2+))
 
+(defun clamp-vec (vec min max)
+  "Clamps the VEC2, VEC, between the MIN VEC2 and MAX VEC2."
+  (gk:vec2 (clamp (gk:x vec) (gk:x min) (gk:x max))
+           (clamp (gk:y vec) (gk:y min) (gk:y max))))
+
 ;; Disable copier to create a deep copy
 (defstruct (rect (:copier nil))
   "Rectangle represented by botto-left POS and SIZE"
@@ -146,11 +151,6 @@
 (gk:define-image :bird "Player/bird1.png")
 (gk:define-image :background "Background/Background4.png")
 (gk:define-image :pipe "Tileset/Style 1/PipeStyle1.png")
-
-(defun clamp-vec (vec min max)
-  "Clamps the VEC2, VEC, between the MIN VEC2 and MAX VEC2."
-  (gk:vec2 (clamp (gk:x vec) (gk:x min) (gk:x max))
-           (clamp (gk:y vec) (gk:y min) (gk:y max))))
 
 (defun flakse ()
   "Flap bird wings. Adds *FLAKSESPEED* to *SPEED* while keeping it within
