@@ -20,6 +20,12 @@
 
 (defvar +empty-vec2+ (gk:vec2 0 0))
 
+;; It's way too easy to use the same empty vector instance multiple places and
+;; accidentally mutate it. This function makes sure we get a clean one each time.
+(defun empty-vec2 ()
+  "Creates an empty VEC2."
+  (copy-vec2 +empty-vec2+))
+
 (defvar *white* (gk:vec4 1 1 1 1))
 
 (defvar *random* (make-random-state t)
@@ -75,29 +81,29 @@
 ;; Disable copier to create a deep copy
 (defstruct (rect (:copier nil))
   "Rectangle represented by botto-left POS and SIZE"
-  (pos +empty-vec2+)
-  (size +empty-vec2+))
+  (pos (empty-vec2))
+  (size (empty-vec2)))
 
 (defun copy-rect (rect)
   (make-rect :pos (copy-vec2 (rect-pos rect))
              :size (copy-vec2 (rect-size rect))))
 
 (defvar +empty-rect+
-  (make-rect :pos (gk:vec2 0 0)
-             :size (gk:vec2 0 0)))
+  (make-rect :pos (empty-vec2)
+             :size (empty-vec2)))
 
 (defstruct (bbox (:copier nil))
   "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
-  (beg +empty-vec2+)
-  (end +empty-vec2+))
+  (beg (empty-vec2))
+  (end (empty-vec2)))
 
 (defun copy-bbox (bbox)
   (make-bbox :beg (copy-vec2 (bbox-beg bbox))
              :end (copy-vec2 (bbox-end bbox))))
 
 (defvar +empty-bbox+
-  (make-bbox :beg (gk:vec2 0 0)
-             :end (gk:vec2 0 0)))
+  (make-bbox :beg (empty-vec2)
+             :end (empty-vec2)))
 
 (defun rect->bbox (rect)
   (make-bbox :beg (rect-pos rect)
