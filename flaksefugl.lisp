@@ -98,10 +98,9 @@
 (defvar *size/2* (gk:div *size* 2)
   "Midpoint of size.")
 
-(defvar *birdsize* (gk:vec2 16 16)
-  "Size of bird. Matches image.")
-(defvar *birdsize/2* (gk:div *birdsize* 2)
-  "Midpoint of bird.")
+(defvar *bird* (make-rect :pos (empty-vec2)
+                          :size (gk:vec2 16 16))
+  "POS is the position in world coordinates. SIZE matches the image size.")
 
 (defvar *pipe-width* 32
   "Width of a pipe. Matches the pipe image width.")
@@ -116,8 +115,6 @@
   "Maximum negative *SPEED* values.")
 (defvar *max-speed* (gk:vec2 10 4)
   "Maximum positive *SPEED* values.")
-(defvar *pos* nil
-  "Position of bird in world coordinates.")
 (defvar *flaksespeed* nil
   "Speed added to *POS* when the bird flaps its wings.")
 (defvar *camera* nil
@@ -213,7 +210,7 @@ or above the screen."
   (do-each (p *pipes*)
     (draw-pipe p))
   ;; bird
-  (gk:draw-image (world->screen *pos*) :bird :width (gk:x *birdsize*) :height (gk:x *birdsize*))
+  (gk:draw-image (world->screen (rect-pos *bird*)) :bird :width (gk:x (rect-size *bird*)) :height (gk:x (rect-size *bird*)))
   ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color *white*)
   (cond
@@ -226,14 +223,9 @@ or above the screen."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
     (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color *white*)))
 
-(defun birdbox ()
-  "Bounding box for bird."
-  (make-bbox :beg *pos*
-             :end (gk:add *pos* *birdsize*)))
-
 (defun bird-collided-p ()
   "T iff the bird collides with any pipe or top/bottom of the screen."
-  (let ((birdbox (birdbox)))
+  (let ((birdbox (rect->bbox *bird*)))
     ;; screen top
     (when (>= (gk:y (bbox-end birdbox)) (gk:y *size*))
       (return-from bird-collided-p t))
@@ -249,11 +241,11 @@ or above the screen."
   (unless (or *gameover* *paused*)
     (setf *score* (+ *score* *level*)
           *speed* (gk:add *speed* *gravity*)
-          *pos* (gk:add *pos* *speed*)
-          (gk:x *camera*) (- (gk:x *pos*) (gk:x *size/2*))
+          (rect-pos *bird*) (gk:add (rect-pos *bird*) *speed*)
+          (gk:x *camera*) (- (gk:x (rect-pos *bird*)) (gk:x *size/2*))
           *gameover* (bird-collided-p))
     (let ((last-pipe (aref *pipes* (- (array-dimension *pipes* 0) 1))))
-      (when (> (gk:x *pos*) (+ (gk:x (rect-pos last-pipe)) *pipe-width*))
+      (when (> (gk:x (rect-pos *bird*)) (+ (gk:x (rect-pos last-pipe)) *pipe-width*))
         (toggle-pause)
         (setf *level-complete* t)))))
 
@@ -273,9 +265,9 @@ or above the screen."
   "Reset game."
   (setf *gravity* (gk:vec2 0.0 -0.1)
         *speed* (gk:vec2 1.0 0.0)
-        *pos* *size/2*
+        (rect-pos *bird*) *size/2*
         *flaksespeed* (gk:vec2 0.0 3.0)
-        *camera* (gk:subt *pos* *size/2*)
+        *camera* (gk:subt (rect-pos *bird*) *size/2*)
         *background-speed* (gk:vec2 0.25 0.0)
         *level* 1
         *level-complete* nil
