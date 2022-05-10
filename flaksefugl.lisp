@@ -45,6 +45,9 @@
   (make-rect :pos (empty-vec2)
              :size (empty-vec2)))
 
+(defun empty-rect ()
+  (copy-rect +empty-rect+))
+
 (defstruct (bbox (:copier nil))
   "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
   (beg (empty-vec2))
@@ -57,6 +60,9 @@
 (defvar +empty-bbox+
   (make-bbox :beg (empty-vec2)
              :end (empty-vec2)))
+
+(defun empty-bbox ()
+  (copy-bbox +empty-bbox+))
 
 (defun rect->bbox (rect)
   (make-bbox :beg (rect-pos rect)
