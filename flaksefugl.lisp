@@ -139,6 +139,20 @@
   "Translates a world coordinate to screen coordinate."
   (gk:subt world camera))
 
+(defun bird-collided-p ()
+  "T iff the bird collides with any pipe or top/bottom of the screen."
+  (let ((birdbox (rect->bbox *bird*)))
+    ;; screen top
+    (when (>= (gk:y (bbox-end birdbox)) (gk:y *size*))
+      (return-from bird-collided-p t))
+    ;; screen bottom
+    (when (<= (gk:y (bbox-beg birdbox)) 0)
+      (return-from bird-collided-p t))
+    ;; pipes
+    (do-each (p *pipes*)
+      (when (intersectsp birdbox (rect->bbox p))
+        (return-from bird-collided-p t)))))
+
 (gk:defgame flaksefugl ()
   ()
   (:viewport-width (gk:x *size*))
@@ -222,20 +236,6 @@ or above the screen."
   "Draw TXT at the center of the screen."
   (multiple-value-bind (origin width height advance) (gk:calc-text-bounds txt)
     (gk:draw-text (format nil txt) (gk:vec2 (/ (- (gk:x *size*) width) 2) (gk:y *size/2*)) :fill-color *white*)))
-
-(defun bird-collided-p ()
-  "T iff the bird collides with any pipe or top/bottom of the screen."
-  (let ((birdbox (rect->bbox *bird*)))
-    ;; screen top
-    (when (>= (gk:y (bbox-end birdbox)) (gk:y *size*))
-      (return-from bird-collided-p t))
-    ;; screen bottom
-    (when (<= (gk:y (bbox-beg birdbox)) 0)
-      (return-from bird-collided-p t))
-    ;; pipes
-    (do-each (p *pipes*)
-      (when (intersectsp birdbox (rect->bbox p))
-        (return-from bird-collided-p t)))))
 
 (defmethod gk:act ((app flaksefugl))
   (unless (or *gameover* *paused*)
