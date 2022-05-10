@@ -92,6 +92,12 @@
 (defmethod intersectsp ((a bbox) (b rect))
   (intersectsp a (rect->bbox b)))
 
+(defstruct background
+  "Background. SPEED for parallax effect. SIZE is size of the background image.
+Position isn't necessary as we tile the background image to fill the screen."
+  (speed (empty-vec2))
+  (size (empty-vec2)))
+
 (defvar *white* (gk:vec4 1 1 1 1))
 
 (defvar *random* (make-random-state t)
@@ -101,10 +107,10 @@
 (defvar *gameover* nil
   "If T, the game is finished.")
 
-(defvar *background-size* (gk:vec2 256 256)
-  "Size of background image.")
+(defvar *background* (make-background :speed (gk:vec2 0.25 0.0)
+                                      :size (gk:vec2 256 256)))
 
-(defvar *size* (gk:vec2 (* (gk:x *background-size*) 2) (gk:y *background-size*))
+(defvar *size* (gk:vec2 (* (gk:x (background-size *background*)) 2) (gk:y (background-size *background*)))
   "Size of the screen.")
 (defvar *size/2* (gk:div *size* 2)
   "Midpoint of size.")
@@ -130,8 +136,6 @@
   "Speed added to *POS* when the bird flaps its wings.")
 (defvar *camera* nil
   "Position of camera. Things in world coordinates is translated to screen using this value.")
-(defvar *background-speed* nil
-  "Speed of background image to give parallax effect.")
 (defvar *pipes* nil
   "The pipes in the game.")
 (defvar *level* nil
@@ -218,14 +222,19 @@ or above the screen."
       (gk:draw-image (world->screen pos) :pipe :origin (gk:vec2 0 140) :width *pipe-width* :height edge-height)
       (incy edge-height))))
 
+(defmethod gk:draw ((background background))
+  (let* ((speed (background-speed background))
+         (size (background-size background))
+         (start (floor (* (gk:x *camera*) (gk:x speed))))
+         (diff (- (gk:x *camera*) start))
+         (pages (floor (/ diff (gk:x size))))
+         (x (+ start (* pages (gk:x size)))))
+    (dotimes (i (+ (ceiling (/ (gk:x *size*) (gk:x size))) 1))
+      (gk:draw-image (world->screen (gk:vec2 (+ x (* (gk:x size) i)) 0)) :background))))
+
 (defmethod gk:draw ((app flaksefugl))
   ;; background
-  (let* ((start (floor (* (gk:x *camera*) (gk:x *background-speed*))))
-         (diff (- (gk:x *camera*) start))
-         (pages (floor (/ diff (gk:x *background-size*))))
-         (x (+ start (* pages (gk:x *background-size*)))))
-    (dotimes (i (+ (ceiling (/ (gk:x *size*) (gk:x *background-size*))) 1))
-      (gk:draw-image (world->screen (gk:vec2 (+ x (* (gk:x *background-size*) i)) 0)) :background)))
+  (gk:draw *background*)
   ;; pipes
   (do-each (p *pipes*)
     (draw-pipe p))
@@ -274,7 +283,6 @@ or above the screen."
         (rect-pos *bird*) *size/2*
         *flaksespeed* (gk:vec2 0.0 3.0)
         *camera* (gk:subt (rect-pos *bird*) *size/2*)
-        *background-speed* (gk:vec2 0.25 0.0)
         *level* 1
         *level-complete* nil
         *score* 0
