@@ -10,14 +10,19 @@
 
 (cl:in-package :flaksefugl)
 
+;; Thanks to TheGreatCatAdorer#3666
+;; Ref https://discord.com/channels/297478281278652417/973665360706424882/973696910928015370
+(defgeneric deep-copy (value)
+  (:documentation "Deep copies VALUE so that modification to either original or
+  result doesn't affect the other.")
+  (:method (value)
+    value)
+  (:method ((value vector))
+    (map 'vector #'deep-copy vector)))
+
 (defun negate (x)
   "Negate X."
   (* x -1))
-
-;; vectors are represented as arrays, so copy will only shallow copy and we
-;; still reference the same underlying array
-(defun copy-vec2 (vec)
-  (gk:vec2 (gk:x vec) (gk:y vec)))
 
 (defvar +empty-vec2+ (gk:vec2 0 0))
 
@@ -25,7 +30,7 @@
 ;; accidentally mutate it. This function makes sure we get a clean one each time.
 (defun empty-vec2 ()
   "Creates an empty VEC2."
-  (copy-vec2 +empty-vec2+))
+  (deep-copy +empty-vec2+))
 
 (defun clamp-vec (vec min max)
   "Clamps the VEC2, VEC, between the MIN VEC2 and MAX VEC2."
@@ -38,32 +43,32 @@
   (pos (empty-vec2))
   (size (empty-vec2)))
 
-(defun copy-rect (rect)
-  (make-rect :pos (copy-vec2 (rect-pos rect))
-             :size (copy-vec2 (rect-size rect))))
+(defmethod deep-copy ((rect rect))
+  (make-rect :pos (deep-copy (rect-pos rect))
+             :size (deep-copy (rect-size rect))))
 
 (defvar +empty-rect+
   (make-rect :pos (empty-vec2)
              :size (empty-vec2)))
 
 (defun empty-rect ()
-  (copy-rect +empty-rect+))
+  (deep-copy +empty-rect+))
 
 (defstruct (bbox (:copier nil))
   "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
   (beg (empty-vec2))
   (end (empty-vec2)))
 
-(defun copy-bbox (bbox)
-  (make-bbox :beg (copy-vec2 (bbox-beg bbox))
-             :end (copy-vec2 (bbox-end bbox))))
+(defmethod deep-copy ((bbox bbox))
+  (make-bbox :beg (deep-copy (bbox-beg bbox))
+             :end (deep-copy (bbox-end bbox))))
 
 (defvar +empty-bbox+
   (make-bbox :beg (empty-vec2)
              :end (empty-vec2)))
 
 (defun empty-bbox ()
-  (copy-bbox +empty-bbox+))
+  (deep-copy +empty-bbox+))
 
 (defun rect->bbox (rect)
   (make-bbox :beg (rect-pos rect)
@@ -224,7 +229,7 @@ reasonable bounds."
 (defun draw-pipe (rect)
   "Draws a pipe at RECT. A full *SIZE* rect will be drawn, but displaced below
 or above the screen."
-  (let* ((rect (copy-rect rect))
+  (let* ((rect (deep-copy rect))
          (free-y (- (gk:y *size*) (gk:y (rect-size rect))))
          (pos (rect-pos rect))
          (pos (gk:add pos (gk:vec2 0 (if (= (gk:y pos) 0) (negate free-y) free-y))))
