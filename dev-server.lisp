@@ -3,7 +3,6 @@
 (asdf:make :slynk)
 (slynk:create-server :port 4008)
 
-(load "flaksefugl.asd")
 (ql:quickload :flaksefugl)
 (in-package :flaksefugl)
 (start)
