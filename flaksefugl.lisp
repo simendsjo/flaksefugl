@@ -114,6 +114,9 @@
   (make-rect :pos (bbox-beg bbox)
              :size (gk:subt (bbox-end bbox) (bbox-beg bbox))))
 
+(defgeneric intersectsp (a b)
+  (:documentation "T iff the A and B overlaps."))
+
 (defmethod intersectsp ((a bbox) (b bbox))
   ;; https://silentmatt.com/rectangle-intersection/
   (let ((a1 (bbox-beg a))
