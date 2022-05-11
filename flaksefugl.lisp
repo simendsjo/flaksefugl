@@ -43,6 +43,30 @@
   (pos (empty-vec2))
   (size (empty-vec2)))
 
+(defun rect-x (rect)
+  (gk:x (rect-pos rect)))
+
+(defun (setf rect-x) (x rect)
+  (setf (gk:x (rect-pos rect)) x))
+
+(defun rect-y (rect)
+  (gk:y (rect-pos rect)))
+
+(defun (setf rect-y) (y rect)
+  (setf (gk:y (rect-pos rect)) y))
+
+(defun rect-width (rect)
+  (gk:x (rect-size rect)))
+
+(defun (setf rect-width) (width rect)
+  (setf (gk:x (rect-size rect)) rect))
+
+(defun rect-height (rect)
+  (gk:y (rect-size rect)))
+
+(defun (setf rect-height) (heigth rect)
+  (setf (gk:y (rect-size rect)) rect))
+
 (defmethod deep-copy ((rect rect))
   (make-rect :pos (deep-copy (rect-pos rect))
              :size (deep-copy (rect-size rect))))
@@ -58,6 +82,18 @@
   "Bounding Box (rectangle) represented by bottom-left BEG and top-right END"
   (beg (empty-vec2))
   (end (empty-vec2)))
+
+(defun bbox-x1 (bbox)
+  (gk:x (bbox-beg bbox)))
+
+(defun bbox-y1 (bbox)
+  (gk:y (bbox-beg bbox)))
+
+(defun bbox-x2 (bbox)
+  (gk:x (bbox-end bbox)))
+
+(defun bbox-y2 (bbox)
+  (gk:y (bbox-end bbox)))
 
 (defmethod deep-copy ((bbox bbox))
   (make-bbox :beg (deep-copy (bbox-beg bbox))
@@ -146,6 +182,12 @@ flapping wings."
 (defun (setf bird-pos) (pos bird)
   (setf (rect-pos (bird-rect bird)) pos))
 
+(defun bird-x (bird)
+  (gk:x (bird-pos bird)))
+
+(defun bird-y (bird)
+  (gk:y (bird-pos bird)))
+
 (defun bird-size (bird)
   (rect-size (bird-rect bird)))
 
@@ -184,10 +226,10 @@ flapping wings."
   "T iff the bird collides with any pipe or top/bottom of the screen."
   (let ((birdbox (rect->bbox (bird-rect *bird*))))
     ;; screen top
-    (when (>= (gk:y (bbox-end birdbox)) (gk:y *size*))
+    (when (>= (bbox-y2 birdbox) (gk:y *size*))
       (return-from bird-collided-p t))
     ;; screen bottom
-    (when (<= (gk:y (bbox-beg birdbox)) 0)
+    (when (<= (bbox-y1 birdbox) 0)
       (return-from bird-collided-p t))
     ;; pipes
     (do-each (p *pipes*)
@@ -236,7 +278,7 @@ reasonable bounds."
   "Draws a pipe at RECT. A full *SIZE* rect will be drawn, but displaced below
 or above the screen."
   (let* ((rect (deep-copy rect))
-         (free-y (- (gk:y *size*) (gk:y (rect-size rect))))
+         (free-y (- (gk:y *size*) (rect-height rect)))
          (pos (rect-pos rect))
          (pos (gk:add pos (gk:vec2 0 (if (= (gk:y pos) 0) (negate free-y) free-y))))
          (edge-height 20)
@@ -291,10 +333,10 @@ or above the screen."
     (setf *score* (+ *score* *level*)
           (bird-speed *bird*) (gk:add (bird-speed *bird*) *gravity*)
           (bird-pos *bird*) (gk:add (bird-pos *bird*) (bird-speed *bird*))
-          (gk:x *camera*) (- (gk:x (bird-pos *bird*)) (gk:x *size/2*))
+          (gk:x *camera*) (- (bird-x *bird*) (gk:x *size/2*))
           *gameover* (bird-collided-p))
     (let ((last-pipe (aref *pipes* (- (array-dimension *pipes* 0) 1))))
-      (when (> (gk:x (bird-pos *bird*)) (+ (gk:x (rect-pos last-pipe)) *pipe-width*))
+      (when (> (bird-x *bird*) (+ (rect-x last-pipe) *pipe-width*))
         (toggle-pause)
         (setf *level-complete* t)))))
 
