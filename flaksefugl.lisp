@@ -257,6 +257,9 @@ or above the screen."
     (dotimes (i (+ (ceiling (/ (gk:x *size*) (gk:x size))) 1))
       (gk:draw-image (world->screen (gk:vec2 (+ x (* (gk:x size) i)) 0)) :background))))
 
+(defmethod gk:draw ((bird bird))
+  (gk:draw-image (world->screen (bird-pos *bird*)) :bird :width (gk:x (bird-size *bird*)) :height (gk:x (bird-size *bird*))))
+
 (defmethod gk:draw ((app flaksefugl))
   ;; background
   (gk:draw *background*)
@@ -264,7 +267,7 @@ or above the screen."
   (do-each (p *pipes*)
     (draw-pipe p))
   ;; bird
-  (gk:draw-image (world->screen (bird-pos *bird*)) :bird :width (gk:x (bird-size *bird*)) :height (gk:x (bird-size *bird*)))
+  (gk:draw *bird*)
   ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color *white*)
   (cond
