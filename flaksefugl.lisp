@@ -1,3 +1,4 @@
+(declaim (optimize (speed 0) (space 0) (debug 3)))
 (cl:defpackage :flaksefugl
   (:use :cl :alexandria :serapeum)
   (:local-nicknames (#:gk #:trivial-gamekit)
