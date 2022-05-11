@@ -135,6 +135,15 @@ flapping wings."
              :max-speed (gk:vec2 10 4)
              :flaksespeed (gk:vec2 0 3)))
 
+(defun bird-pos (bird)
+  (rect-pos (bird-rect bird)))
+
+(defun (setf bird-pos) (pos bird)
+  (setf (rect-pos (bird-rect bird)) pos))
+
+(defun bird-size (bird)
+  (rect-size (bird-rect bird)))
+
 (defvar *bird* nil
   "The player.")
 
@@ -250,10 +259,7 @@ or above the screen."
   (do-each (p *pipes*)
     (draw-pipe p))
   ;; bird
-  (let* ((rect (bird-rect *bird*))
-         (pos (rect-pos rect))
-         (size (rect-size rect)))
-    (gk:draw-image (world->screen pos) :bird :width (gk:x size) :height (gk:x size)))
+  (gk:draw-image (world->screen (bird-pos *bird*)) :bird :width (gk:x (bird-size *bird*)) :height (gk:x (bird-size *bird*)))
   ;; score
   (gk:draw-text (format nil "Score: ~A" *score*) (gk:vec2 10 (- (gk:y *size*) 20)) :fill-color *white*)
   (cond
@@ -270,11 +276,11 @@ or above the screen."
   (unless (or *gameover* *paused*)
     (setf *score* (+ *score* *level*)
           (bird-speed *bird*) (gk:add (bird-speed *bird*) *gravity*)
-          (rect-pos (bird-rect *bird*)) (gk:add (rect-pos (bird-rect *bird*)) (bird-speed *bird*))
-          (gk:x *camera*) (- (gk:x (rect-pos (bird-rect *bird*))) (gk:x *size/2*))
+          (bird-pos *bird*) (gk:add (bird-pos *bird*) (bird-speed *bird*))
+          (gk:x *camera*) (- (gk:x (bird-pos *bird*)) (gk:x *size/2*))
           *gameover* (bird-collided-p))
     (let ((last-pipe (aref *pipes* (- (array-dimension *pipes* 0) 1))))
-      (when (> (gk:x (rect-pos (bird-rect *bird*))) (+ (gk:x (rect-pos last-pipe)) *pipe-width*))
+      (when (> (gk:x (bird-pos *bird*)) (+ (gk:x (rect-pos last-pipe)) *pipe-width*))
         (toggle-pause)
         (setf *level-complete* t)))))
 
@@ -294,7 +300,7 @@ or above the screen."
   "Reset game."
   (setf *gravity* (gk:vec2 0.0 -0.1)
         *bird* (empty-bird)
-        *camera* (gk:subt (rect-pos (bird-rect *bird*)) *size/2*)
+        *camera* (gk:subt (bird-pos *bird*) *size/2*)
         *level* 1
         *level-complete* nil
         *score* 0
