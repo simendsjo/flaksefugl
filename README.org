@@ -2,9 +2,22 @@
 
 Requires [[https://www.quicklisp.org][quicklisp]] and [[https://borodust.org/projects/trivial-gamekit/][trivial-gamekit]].
 
+Clone the project into =~/common-lisp=, or add a symlink to the repository in that
+folder (or another folder where quicklisp can find it).
+
+#+begin_src bash
+cd ~/code # or wherever you put your projects
+git clone git@github.com:simendsjo/flaksefugl.git
+ln -s flaksefugl ~/common-lisp/
+#+end_src
+
+Start the repl
+#+begin_src bash
+sbcl
+#+end_src
+
+Type the following to run the game
 #+begin_src common-lisp
-(load "flaksefugl.asd")
 (ql:quickload :flaksefugl)
-(in-package :flaksefugl)
-(start)
+(flaksefugl:start)
 #+end_src
