@@ -149,6 +149,12 @@ flapping wings."
 (defun bird-size (bird)
   (rect-size (bird-rect bird)))
 
+(defun bird-width (bird)
+  (gk:x (bird-size bird)))
+
+(defun bird-height (bird)
+  (gk:y (bird-size bird)))
+
 (defvar *bird* nil
   "The player.")
 
@@ -258,7 +264,7 @@ or above the screen."
       (gk:draw-image (world->screen (gk:vec2 (+ x (* (gk:x size) i)) 0)) :background))))
 
 (defmethod gk:draw ((bird bird))
-  (gk:draw-image (world->screen (bird-pos *bird*)) :bird :width (gk:x (bird-size *bird*)) :height (gk:x (bird-size *bird*))))
+  (gk:draw-image (world->screen (bird-pos *bird*)) :bird :width (bird-width *bird*) :height (bird-height *bird*)))
 
 (defmethod gk:draw ((app flaksefugl))
   ;; background
