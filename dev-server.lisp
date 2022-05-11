@@ -1,6 +1,6 @@
 ;; I'm unable to get --script to work properly
 ;; Run the ./dev script to start
-(asdf:load-system :slynk)
+(asdf:make :slynk)
 (slynk:create-server :port 4008)
 
 (load "flaksefugl.asd")
