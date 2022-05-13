@@ -171,7 +171,7 @@ flapping wings."
   (max-speed (empty-vec2))
   (flaksespeed (empty-vec2)))
 
-(defun empty-bird ()
+(defun default-bird ()
   (make-bird :rect (make-rect :pos *size/2*
                               :size (gk:vec2 16 16))
              :speed (gk:vec2 1.0 0.0)
@@ -358,7 +358,7 @@ or above the screen."
 (defun reset ()
   "Reset game."
   (setf *gravity* (gk:vec2 0.0 -0.1)
-        *bird* (empty-bird)
+        *bird* (default-bird)
         *camera* (gk:subt (bird-pos *bird*) *size/2*)
         *level* 1
         *level-complete* nil
