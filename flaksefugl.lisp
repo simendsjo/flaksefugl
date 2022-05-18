@@ -128,15 +128,18 @@ reasonable bounds."
   "Toggle *PAUSED*."
   (setf *paused* (not *paused*)))
 
+(defun next-level ()
+  (setf (bird-speed *bird*) (gk:add (bird-speed *bird*) (gk:vec2 0.25 0))
+        *level-complete* nil
+        *level* (+ *level* 1))
+  (make-pipes))
+
 (defmethod gk:post-initialize ((app flaksefugl))
   (reset)
   (gk:bind-button :enter :pressed (lambda () (reset)))
   (gk:bind-button :space :pressed (lambda ()
                                     (when *level-complete*
-                                      (setf (bird-speed *bird*) (gk:add (bird-speed *bird*) (gk:vec2 0.25 0))
-                                            *level-complete* nil
-                                            *level* (+ *level* 1))
-                                      (make-pipes))
+                                      (next-level))
                                     (toggle-pause)))
   (gk:bind-button :up :pressed (lambda () (flakse))))
 
@@ -225,12 +228,12 @@ or above the screen."
   (setf *gravity* (gk:vec2 0.0 -0.1)
         *bird* (default-bird)
         *camera* (gk:subt (bird-pos *bird*) *size/2*)
-        *level* 1
+        *level* 0
         *level-complete* nil
         *score* 0
         *gameover* nil
         *pipes* nil)
-  (make-pipes))
+  (next-level))
 
 (defun start ()
   (gk:start 'flaksefugl))
