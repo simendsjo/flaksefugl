@@ -1,5 +1,5 @@
 ;; I'm unable to get --script to work properly
-;; Run the ./dev script to start
+;; Run `make dev-server` to start
 (asdf:make "slynk")
 (slynk:create-server :port 4008)
 
