@@ -17,4 +17,4 @@
   :components ((:file "packages")
                (:file "setup")
                (:file "util-test"))
-  :perform (test-op (o c) (symbol-call :5am :run!)))
+  :perform (test-op (o c) (symbol-call :flaksefugl/test :test-flaksefugl)))
