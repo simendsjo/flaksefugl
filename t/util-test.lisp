@@ -6,6 +6,6 @@
 (in-suite util-tests)
 
 (test negate-test
-  (is (uot::negate  0)  0)
-  (is (uot::negate  1) -1)
-  (is (uot::negate -1)  1))
+  (is (=  0 (uot::negate  0)))
+  (is (= -1 (uot::negate  1)))
+  (is (=  1 (uot::negate -1))))
